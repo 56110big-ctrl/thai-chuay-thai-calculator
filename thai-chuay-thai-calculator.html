@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คำนวณโครงการไทยช่วยไทย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue-deep:#0A3D8F;
+    --blue-main:#0B5FFF;
+    --blue-pale:#EAF2FF;
+    --green-soft:#7ED957;
+    --green-deep:#1E9E4A;
+    --green-bg:#EFFBEF;
+    --red-deep:#D92D2D;
+    --red-bg:#FFF1F1;
+    --bg:#F5F8FC;
+    --card:#FFFFFF;
+    --ink:#1B2A3A;
+    --ink-soft:#5C6B7A;
+    --line:#E1E9F2;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    font-family:'Sarabun',sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    padding:32px 16px 64px;
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(11,95,255,0.07), transparent 40%),
+      radial-gradient(circle at 90% 10%, rgba(126,217,87,0.10), transparent 45%);
+  }
+  .wrap{max-width:560px;margin:0 auto;}
+
+  /* ---------- Header ---------- */
+  .header{text-align:center;margin-bottom:28px;}
+  .badge{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--blue-pale);color:var(--blue-deep);
+    font-weight:600;font-size:13px;padding:6px 14px;border-radius:999px;
+    margin-bottom:14px;
+  }
+  .badge::before{content:"●";color:var(--green-deep);font-size:10px;}
+  h1{
+    font-size:26px;font-weight:700;color:var(--blue-deep);
+    margin:0 0 6px;letter-spacing:-0.3px;
+  }
+  .subtitle{color:var(--ink-soft);font-size:14.5px;margin:0;}
+
+  /* ---------- Card ---------- */
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px 22px;
+    margin-bottom:18px;
+    box-shadow:0 1px 2px rgba(20,40,80,0.04), 0 8px 24px rgba(20,40,80,0.05);
+  }
+  .card-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .step-num{
+    width:28px;height:28px;border-radius:9px;
+    background:var(--blue-main);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:14px;flex-shrink:0;
+  }
+  .card-head h2{font-size:16.5px;margin:0;font-weight:700;color:var(--blue-deep);}
+  .card-head p{margin:2px 0 0;font-size:12.5px;color:var(--ink-soft);}
+
+  /* ---------- Input ---------- */
+  label{
+    display:block;font-size:13.5px;font-weight:600;
+    color:var(--ink);margin-bottom:7px;
+  }
+  .input-row{position:relative;margin-bottom:4px;}
+  .input-row input{
+    width:100%;font-family:'Sarabun',sans-serif;
+    font-size:22px;font-weight:700;color:var(--blue-deep);
+    font-variant-numeric:tabular-nums;
+    border:2px solid var(--line);border-radius:12px;
+    padding:13px 50px 13px 16px;
+    outline:none;transition:border-color .15s;
+    background:#FCFDFF;
+  }
+  .input-row input:focus{border-color:var(--blue-main);background:#fff;}
+  .input-row .unit{
+    position:absolute;right:16px;top:50%;transform:translateY(-50%);
+    color:var(--ink-soft);font-size:14px;font-weight:600;
+  }
+  .hint{font-size:12px;color:var(--ink-soft);margin:6px 0 0;}
+
+  /* ---------- Split result ---------- */
+  .split-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px;}
+  .split-box{
+    border-radius:14px;padding:16px 14px;
+    border:1px solid var(--line);
+    background:var(--blue-pale);
+  }
+  .split-box.is-sixty{background:var(--green-bg);border-color:#CDEFCB;}
+  .split-box.is-over{background:var(--red-bg);border-color:#F6CACA;}
+  .split-label{
+    font-size:12px;font-weight:700;color:var(--blue-deep);
+    text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .split-box.is-sixty .split-label{color:var(--green-deep);}
+  .split-box.is-over .split-label{color:var(--red-deep);}
+  .split-value{
+    font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;
+    color:var(--blue-deep);line-height:1.2;
+  }
+  .split-box.is-sixty .split-value{color:var(--green-deep);}
+  .split-box.is-over .split-value{color:var(--red-deep);}
+  .split-sub{font-size:11.5px;color:var(--ink-soft);margin-top:4px;}
+  .cap-pill{
+    font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;
+    background:rgba(217,45,45,0.12);color:var(--red-deep);
+  }
+
+  .warn-banner{
+    margin-top:14px;background:var(--red-bg);border:1px solid #F6CACA;
+    border-radius:12px;padding:11px 14px;font-size:13px;color:var(--red-deep);
+    display:none;align-items:flex-start;gap:8px;font-weight:600;
+  }
+  .warn-banner.show{display:flex;}
+  .warn-banner svg{flex-shrink:0;margin-top:1px;}
+
+  .use-btn{
+    width:100%;margin-top:18px;
+    background:var(--blue-main);color:#fff;border:none;
+    font-family:'Sarabun',sans-serif;font-weight:700;font-size:15px;
+    padding:13px;border-radius:12px;cursor:pointer;
+    transition:background .15s, transform .1s;
+  }
+  .use-btn:hover{background:var(--blue-deep);}
+  .use-btn:active{transform:scale(0.99);}
+  .use-btn:disabled{background:#C7D3E0;cursor:not-allowed;}
+
+  /* ---------- Cumulative card ---------- */
+  .meter-wrap{margin-top:6px;}
+  .meter-track{
+    position:relative;height:14px;border-radius:999px;
+    background:var(--blue-pale);overflow:hidden;
+  }
+  .meter-fill{
+    height:100%;border-radius:999px;
+    background:linear-gradient(90deg, var(--green-soft), var(--green-deep));
+    transition:width .4s ease, background .4s ease;
+    width:0%;
+  }
+  .meter-fill.is-warn{background:linear-gradient(90deg, #F4C430, #E08E00);}
+  .meter-fill.is-over{background:linear-gradient(90deg, #FF7A7A, var(--red-deep));}
+  .meter-labels{
+    display:flex;justify-content:space-between;
+    font-size:11.5px;color:var(--ink-soft);margin-top:6px;
+  }
+
+  .status-banner{
+    margin-top:16px;border-radius:14px;padding:16px;
+    display:flex;align-items:center;gap:12px;
+    background:var(--green-bg);border:1.5px solid #BFEBC0;
+    transition:background .25s, border-color .25s;
+  }
+  .status-banner.is-over{background:var(--red-bg);border-color:#F6CACA;}
+  .status-dot{
+    width:38px;height:38px;border-radius:50%;flex-shrink:0;
+    background:var(--green-deep);display:flex;align-items:center;justify-content:center;
+  }
+  .status-banner.is-over .status-dot{background:var(--red-deep);}
+  .status-text strong{
+    display:block;font-size:15px;color:var(--green-deep);font-weight:700;
+  }
+  .status-banner.is-over .status-text strong{color:var(--red-deep);}
+  .status-text span{font-size:12.5px;color:var(--ink-soft);}
+
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px;}
+  .stat-box{
+    text-align:center;background:#FAFBFD;border:1px solid var(--line);
+    border-radius:12px;padding:12px 6px;
+  }
+  .stat-box .num{
+    font-size:17px;font-weight:700;color:var(--blue-deep);
+    font-variant-numeric:tabular-nums;
+  }
+  .stat-box.green .num{color:var(--green-deep);}
+  .stat-box.red .num{color:var(--red-deep);}
+  .stat-box .lbl{font-size:11px;color:var(--ink-soft);margin-top:3px;}
+
+  .reset-row{display:flex;justify-content:flex-end;margin-top:14px;}
+  .reset-btn{
+    background:none;border:none;color:var(--ink-soft);
+    font-family:'Sarabun',sans-serif;font-size:12.5px;cursor:pointer;
+    text-decoration:underline;padding:4px;
+  }
+  .reset-btn:hover{color:var(--red-deep);}
+
+  /* ---------- History ---------- */
+  .history-list{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto;}
+  .history-empty{
+    text-align:center;color:var(--ink-soft);font-size:13.5px;
+    padding:30px 10px;
+  }
+  .history-item{
+    display:flex;align-items:center;gap:12px;
+    border:1px solid var(--line);border-radius:12px;padding:11px 13px;
+    background:#FCFDFF;
+  }
+  .history-item .h-dot{
+    width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--green-deep);
+  }
+  .history-item.over .h-dot{background:var(--red-deep);}
+  .history-item .h-main{flex:1;min-width:0;}
+  .history-item .h-amount{
+    font-size:14.5px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;
+  }
+  .history-item .h-detail{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .history-item .h-time{font-size:11px;color:var(--ink-soft);text-align:right;flex-shrink:0;}
+  .history-item .h-status{
+    font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;
+    background:var(--green-bg);color:var(--green-deep);margin-top:3px;display:inline-block;
+  }
+  .history-item.over .h-status{background:var(--red-bg);color:var(--red-deep);}
+  .del-btn{
+    background:none;border:none;color:#C2CCD8;font-size:16px;cursor:pointer;
+    padding:4px 6px;flex-shrink:0;
+  }
+  .del-btn:hover{color:var(--red-deep);}
+
+  .footer-note{
+    text-align:center;font-size:11.5px;color:var(--ink-soft);
+    margin-top:24px;line-height:1.6;
+  }
+  .credit-note{
+    text-align:center;font-size:10.5px;color:#A7B3C0;
+    margin-top:10px;
+  }
+
+  @media (max-width:420px){
+    .split-grid{grid-template-columns:1fr;}
+    .stat-grid{grid-template-columns:1fr;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="badge">โครงการไทยช่วยไทย</div>
+    <h1>คำนวณโครงการไทยช่วยไทย</h1>
+    <p class="subtitle">กรอกยอดเงิน ระบบแบ่งสัดส่วนและตรวจยอดสะสมให้อัตโนมัติ</p>
+  </div>
+
+  <!-- STEP 1: กรอกยอดและแบ่งสัดส่วน -->
+  <div class="card">
+    <div class="card-head">
+      <div class="step-num">1</div>
+      <div>
+        <h2>กรอกยอดเงินเต็ม</h2>
+        <p>ระบบจะแบ่งเป็น 40% และ 60% ให้ทันที</p>
+      </div>
+    </div>
+
+    <label for="fullAmount">ยอดเงินเต็ม</label>
+    <div class="input-row">
+      <input type="number" id="fullAmount" inputmode="decimal" placeholder="เช่น 200" min="0" step="0.01">
+      <span class="unit">บาท</span>
+    </div>
+    <p class="hint">ตัวอย่าง: กรอก 200 → ระบบคิด 40% = 80 บาท และ 60% = 120 บาท</p>
+
+    <div class="split-grid">
+      <div class="split-box">
+        <div class="split-label"><span>ส่วน 40%</span></div>
+        <div class="split-value" id="fortyValue">0.00</div>
+        <div class="split-sub">บาท</div>
+      </div>
+      <div class="split-box is-sixty" id="sixtyBox">
+        <div class="split-label">
+          <span>ส่วน 60%</span>
+          <span class="cap-pill">เพดาน 200/วัน</span>
+        </div>
+        <div class="split-value" id="sixtyValue">0.00</div>
+        <div class="split-sub" id="sixtySub">บาท</div>
+      </div>
+    </div>
+
+    <div class="warn-banner" id="warnBanner">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="warnText">ส่วน 60% เกินเพดาน 200 บาท/วัน ระบบจะใช้ค่าจริงที่คำนวณได้ แต่ไม่สามารถใช้เกิน 200 บาทในทางปฏิบัติ</span>
+    </div>
+
+    <button class="use-btn" id="useBtn" disabled>นำยอด 60% นี้ไปหักจากยอดรวม 1,000 บาท</button>
+  </div>
+
+  <!-- STEP 2: ยอดรวม 1000 -->
+  <div class="card">
+    <div class="card-head">
+      <div class="step-num">2</div>
+      <div>
+        <h2>ยอดรวมทั้งหมด 1,000 บาท</h2>
+        <p>นำยอดส่วน 60% ที่ใช้ไปหักออกจากยอดรวมสะสม</p>
+      </div>
+    </div>
+
+    <div class="meter-wrap">
+      <div class="meter-track"><div class="meter-fill" id="meterFill"></div></div>
+      <div class="meter-labels">
+        <span>0 บาท</span>
+        <span>เพดาน 1,000 บาท</span>
+      </div>
+    </div>
+
+    <div class="status-banner" id="statusBanner">
+      <div class="status-dot" id="statusDot">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="status-text">
+        <strong id="statusTitle">ยอดยังไม่เกิน 1,000 บาท</strong>
+        <span id="statusDesc">ใช้ไปแล้ว 0.00 บาท จากทั้งหมด 1,000 บาท</span>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-box">
+        <div class="num" id="statTotalUsed">0.00</div>
+        <div class="lbl">ใช้ไปแล้ว (บาท)</div>
+      </div>
+      <div class="stat-box green" id="statRemainBox">
+        <div class="num" id="statRemain">1,000.00</div>
+        <div class="lbl">คงเหลือ (บาท)</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="statCount">0</div>
+        <div class="lbl">จำนวนครั้งที่ใช้</div>
+      </div>
+    </div>
+
+    <div class="reset-row">
+      <button class="reset-btn" id="resetBtn">ล้างยอดสะสมทั้งหมด</button>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="card">
+    <div class="card-head">
+      <div class="step-num">⏱</div>
+      <div>
+        <h2>ประวัติย้อนหลัง</h2>
+        <p>เก็บไว้ในเครื่องนี้เท่านั้น ไม่แชร์กับใคร</p>
+      </div>
+    </div>
+    <div class="history-list" id="historyList">
+      <div class="history-empty">ยังไม่มีประวัติการใช้งาน</div>
+    </div>
+  </div>
+
+  <p class="footer-note">
+    ขีดจำกัด: ส่วน 60% ใช้ได้ไม่เกิน 200 บาท/วัน และยอดสะสมรวมไม่เกิน 1,000 บาท<br>
+    ข้อมูลทั้งหมดเก็บไว้ในเบราว์เซอร์ของคุณเท่านั้น
+  </p>
+
+  <p class="credit-note">จัดทำโดย ig: kamisam_a</p>
+
+</div>
+
+<script>
+(function(){
+  const TOTAL_CAP = 1000;
+  const SIXTY_DAILY_CAP = 200;
+  const STORAGE_KEY = 'thaichuaythai_history_v1';
+
+  const fullAmountEl = document.getElementById('fullAmount');
+  const fortyValueEl = document.getElementById('fortyValue');
+  const sixtyValueEl = document.getElementById('sixtyValue');
+  const sixtySubEl = document.getElementById('sixtySub');
+  const sixtyBoxEl = document.getElementById('sixtyBox');
+  const warnBannerEl = document.getElementById('warnBanner');
+  const warnTextEl = document.getElementById('warnText');
+  const useBtnEl = document.getElementById('useBtn');
+
+  const meterFillEl = document.getElementById('meterFill');
+  const statusBannerEl = document.getElementById('statusBanner');
+  const statusTitleEl = document.getElementById('statusTitle');
+  const statusDescEl = document.getElementById('statusDesc');
+  const statTotalUsedEl = document.getElementById('statTotalUsed');
+  const statRemainEl = document.getElementById('statRemain');
+  const statRemainBoxEl = document.getElementById('statRemainBox');
+  const statCountEl = document.getElementById('statCount');
+  const resetBtnEl = document.getElementById('resetBtn');
+  const historyListEl = document.getElementById('historyList');
+
+  let currentSixty = 0;
+  let currentFull = 0;
+  let isOverDaily = false;
+
+  function fmt(n){
+    return n.toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  function loadHistory(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function saveHistory(list){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){}
+  }
+
+  function getTotalUsed(history){
+    return history.reduce((sum, item) => sum + item.sixty, 0);
+  }
+
+  function renderSplit(){
+    const full = parseFloat(fullAmountEl.value);
+    if(isNaN(full) || full < 0){
+      currentFull = 0; currentSixty = 0;
+      fortyValueEl.textContent = '0.00';
+      sixtyValueEl.textContent = '0.00';
+      sixtySubEl.textContent = 'บาท';
+      sixtyBoxEl.classList.remove('is-over');
+      warnBannerEl.classList.remove('show');
+      useBtnEl.disabled = true;
+      isOverDaily = false;
+      return;
+    }
+    currentFull = full;
+    const forty = full * 0.4;
+    const sixty = full * 0.6;
+    currentSixty = sixty;
+
+    fortyValueEl.textContent = fmt(forty);
+    sixtyValueEl.textContent = fmt(sixty);
+
+    if(sixty > SIXTY_DAILY_CAP){
+      isOverDaily = true;
+      sixtySubEl.textContent = `บาท (เกินเพดาน ${fmt(SIXTY_DAILY_CAP)} บาท/วัน)`;
+      sixtyBoxEl.classList.add('is-over');
+      warnTextEl.textContent = `ส่วน 60% คำนวณได้ ${fmt(sixty)} บาท ซึ่งเกินเพดาน ${fmt(SIXTY_DAILY_CAP)} บาท/วัน ระบบแสดงค่าจริงไว้ให้ แต่ไม่สามารถใช้เกิน ${fmt(SIXTY_DAILY_CAP)} บาทต่อวันได้`;
+      warnBannerEl.classList.add('show');
+    } else {
+      isOverDaily = false;
+      sixtySubEl.textContent = 'บาท';
+      sixtyBoxEl.classList.remove('is-over');
+      warnBannerEl.classList.remove('show');
+    }
+
+    useBtnEl.disabled = !(full > 0);
+  }
+
+  function renderCumulative(){
+    const history = loadHistory();
+    const used = getTotalUsed(history);
+    const remain = TOTAL_CAP - used;
+    const pct = Math.min((used / TOTAL_CAP) * 100, 100);
+    const over = used > TOTAL_CAP;
+
+    meterFillEl.style.width = pct + '%';
+    meterFillEl.classList.remove('is-warn','is-over');
+    if(over){
+      meterFillEl.classList.add('is-over');
+    } else if(used / TOTAL_CAP >= 0.8){
+      meterFillEl.classList.add('is-warn');
+    }
+
+    statusBannerEl.classList.toggle('is-over', over);
+    if(over){
+      statusTitleEl.textContent = `ยอดเกิน 1,000 บาท แล้ว!`;
+      statusDescEl.textContent = `ใช้ไปแล้ว ${fmt(used)} บาท เกินยอดรวม ${fmt(TOTAL_CAP)} บาท อยู่ ${fmt(used-TOTAL_CAP)} บาท`;
+    } else {
+      statusTitleEl.textContent = 'ยอดยังไม่เกิน 1,000 บาท';
+      statusDescEl.textContent = `ใช้ไปแล้ว ${fmt(used)} บาท จากทั้งหมด ${fmt(TOTAL_CAP)} บาท`;
+    }
+
+    statTotalUsedEl.textContent = fmt(used);
+    statRemainEl.textContent = fmt(remain);
+    statRemainBoxEl.classList.remove('green','red');
+    statRemainBoxEl.classList.add(remain < 0 ? 'red' : 'green');
+    statCountEl.textContent = history.length;
+
+    renderHistory(history);
+  }
+
+  function renderHistory(history){
+    if(history.length === 0){
+      historyListEl.innerHTML = '<div class="history-empty">ยังไม่มีประวัติการใช้งาน</div>';
+      return;
+    }
+    const sorted = [...history].sort((a,b) => b.id - a.id);
+    historyListEl.innerHTML = sorted.map(item => {
+      const d = new Date(item.id);
+      const timeStr = d.toLocaleString('th-TH', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+      const overFlag = item.runningTotal > TOTAL_CAP;
+      return `
+        <div class="history-item ${overFlag ? 'over' : ''}">
+          <div class="h-dot"></div>
+          <div class="h-main">
+            <div class="h-amount">เต็ม ${fmt(item.full)} → 60% = ${fmt(item.sixty)} บาท</div>
+            <div class="h-detail">สะสม ${fmt(item.runningTotal)} / ${fmt(TOTAL_CAP)} บาท${item.overDaily ? ' • เกินเพดาน 200/วัน' : ''}</div>
+            <span class="h-status">${overFlag ? 'เกินยอดรวม' : 'ปกติ'}</span>
+          </div>
+          <div class="h-time">${timeStr}<br><button class="del-btn" data-id="${item.id}" title="ลบรายการนี้">✕</button></div>
+        </div>
+      `;
+    }).join('');
+
+    historyListEl.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = Number(btn.dataset.id);
+        let h = loadHistory().filter(x => x.id !== id);
+        saveHistory(h);
+        renderCumulative();
+      });
+    });
+  }
+
+  fullAmountEl.addEventListener('input', renderSplit);
+
+  useBtnEl.addEventListener('click', () => {
+    if(currentFull <= 0) return;
+    const history = loadHistory();
+    const prevUsed = getTotalUsed(history);
+    const runningTotal = prevUsed + currentSixty;
+    history.push({
+      id: Date.now(),
+      full: currentFull,
+      forty: currentFull * 0.4,
+      sixty: currentSixty,
+      overDaily: isOverDaily,
+      runningTotal: runningTotal
+    });
+    saveHistory(history);
+    renderCumulative();
+    fullAmountEl.value = '';
+    renderSplit();
+  });
+
+  resetBtnEl.addEventListener('click', () => {
+    if(confirm('ต้องการล้างยอดสะสมและประวัติทั้งหมดหรือไม่?')){
+      saveHistory([]);
+      renderCumulative();
+    }
+  });
+
+  renderSplit();
+  renderCumulative();
+})();
+</script>
+
+</body>
+</html>
